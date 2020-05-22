@@ -49,17 +49,15 @@ public class ZookeeperLock implements com.xiaoyu.zklock.core.LogFactory {
         info(logStr + "子节点创建成功:" + createPath);
 
         try {
-            if (!checkState(path, createPath, zooKeeper)) {
-                //未拿到锁，监控节点事件
-                if (!getLockOrWait(path, createPath, zooKeeper, outTime)) {
-                    //删除节点，避免死锁
-                    if (!removeLock(createPath, zooKeeper)) {
-                        //失败重试
-                        removeLock(createPath, zooKeeper);
-                    }
-                    //超时
-                    return null;
+            //拿锁，监控节点事件
+            if (!getLockOrWait(path, createPath, zooKeeper, outTime)) {
+                //删除节点，避免死锁
+                if (!removeLock(createPath, zooKeeper)) {
+                    //失败重试
+                    removeLock(createPath, zooKeeper);
                 }
+                //超时
+                return null;
             }
             info(logStr + createPath + " : 获取锁成功！");
             return createPath;
@@ -74,13 +72,8 @@ public class ZookeeperLock implements com.xiaoyu.zklock.core.LogFactory {
 
     public boolean removeLock(String createPath, ZooKeeper zooKeeper) {
         try {
-            if (!ZooKeeper.States.CLOSED.equals(zooKeeper.getState())) {
-                if (zooKeeper.exists(createPath, true) != null) {
-                    zooKeeper.delete(createPath, -1);
-                } else {
-                    error(createPath + ":节点不存在，无法删除！");
-                }
-            }
+            //节点删除失败会抛出异常！
+            zooKeeper.delete(createPath, -1);
             info(createPath + ":节点删除成功，锁释放！");
             return true;
         } catch (Exception e) {
@@ -101,14 +94,12 @@ public class ZookeeperLock implements com.xiaoyu.zklock.core.LogFactory {
     private String createZookeeperPath(String path, ZooKeeper zooKeeper)
             throws Exception {
         //如果不存在父节点 先创建一个父节点
-        synchronized (this) {
-            try {
-                if (null == zooKeeper.exists(path, false)) {
-                    //EPHEMERAL 临时节点，PERSISTENT 永久节点，临时节点随着zk会话消失而消失
-                    zooKeeper.create(path, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-                }
-            } catch (Exception ignored) {
+        try {
+            if (null == zooKeeper.exists(path, false)) {
+                //EPHEMERAL 临时节点，PERSISTENT 永久节点，临时节点随着zk会话消失而消失
+                zooKeeper.create(path, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
             }
+        } catch (Exception ignored) {
         }
         //建立一个顺序临时节点
         return zooKeeper.create(path.concat("/1"), null, ZooDefs.Ids.OPEN_ACL_UNSAFE,
@@ -199,7 +190,7 @@ public class ZookeeperLock implements com.xiaoyu.zklock.core.LogFactory {
                 //超时
                 throw new Exception("获取锁超时 !" + lockName);
             }
-            Thread.sleep(10);
+            Thread.sleep(1);
         }
 
         return resBoolean.get();

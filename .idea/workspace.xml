@@ -3,8 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="501b723a-21cc-4317-b045-83d859dc3e5c" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/xiaoyu/zklock/config/AopConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/xiaoyu/zklock/config/AopConfig.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/xiaoyu/zklock/core/ZookeeperLock.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/xiaoyu/zklock/core/ZookeeperLock.java" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -68,7 +67,9 @@
       <workItem from="1590051391439" duration="1162000" />
       <workItem from="1590109989028" duration="988000" />
       <workItem from="1590111119970" duration="32000" />
-      <workItem from="1590112449587" duration="3008000" />
+      <workItem from="1590112449587" duration="3143000" />
+      <workItem from="1590117312068" duration="936000" />
+      <workItem from="1590127768586" duration="4547000" />
     </task>
     <task id="LOCAL-00001" summary="update pom">
       <created>1590110728505</created>
@@ -77,7 +78,14 @@
       <option name="project" value="LOCAL" />
       <updated>1590110728505</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="锁性能调优">
+      <created>1590115489075</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1590115489075</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -98,6 +106,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="update pom" />
-    <option name="LAST_COMMIT_MESSAGE" value="update pom" />
+    <MESSAGE value="锁性能调优" />
+    <option name="LAST_COMMIT_MESSAGE" value="锁性能调优" />
   </component>
 </project>

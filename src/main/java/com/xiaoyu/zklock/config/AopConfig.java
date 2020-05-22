@@ -11,6 +11,8 @@ import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
+import java.security.InvalidParameterException;
+
 /**
  * <p>
  * Aop管理配置类
@@ -43,7 +45,7 @@ public class AopConfig implements LogFactory {
             zooKeeper = new ZooKeeper(lockConfig.getZkAddress(), Integer.parseInt(lockConfig.getTimeOut()), null);
         }
         if (StringUtils.isEmpty(lock.lockName())) {
-            throw new Exception("锁名称不能为空或者'' !");
+            throw new InvalidParameterException("锁名称不能为空或者'' !");
         }
         Object obj = null;
         try {

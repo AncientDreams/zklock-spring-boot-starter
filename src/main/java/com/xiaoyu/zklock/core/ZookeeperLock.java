@@ -3,15 +3,16 @@ package com.xiaoyu.zklock.core;
 
 import com.xiaoyu.zklock.config.LockConfig;
 import org.apache.commons.logging.Log;
-import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.ZooDefs;
-import org.apache.zookeeper.ZooKeeper;
+import org.apache.zookeeper.*;
 import org.apache.zookeeper.data.Stat;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.security.InvalidParameterException;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * <p>
@@ -39,7 +40,7 @@ public class ZookeeperLock implements com.xiaoyu.zklock.core.LogFactory {
         String logStr = "锁名称：" + path.substring(1) + "，";
 
         if (outTime == 0) {
-            throw new Exception("超时时间不能为0!");
+            throw new InvalidParameterException("超时时间不能为0!");
         }
 
         String createPath = createZookeeperPath(path, zooKeeper);
@@ -74,7 +75,7 @@ public class ZookeeperLock implements com.xiaoyu.zklock.core.LogFactory {
         try {
             //节点删除失败会抛出异常！
             zooKeeper.delete(createPath, -1);
-            info(createPath + ":节点删除成功，锁释放！");
+            info(createPath + ":节点删除成功 ！");
             return true;
         } catch (Exception e) {
             error(e.getMessage(), e);
@@ -106,28 +107,6 @@ public class ZookeeperLock implements com.xiaoyu.zklock.core.LogFactory {
                 CreateMode.EPHEMERAL_SEQUENTIAL);
     }
 
-
-    /**
-     * 检查是否拿到锁
-     *
-     * @param path      父节点位置
-     * @param lockName  请求子节点位置
-     * @param zooKeeper zk 连接
-     * @return 是否拿到
-     */
-    private boolean checkState(String path, String lockName, ZooKeeper zooKeeper) {
-        List<String> childList;
-        try {
-            childList = zooKeeper.getChildren(path, false);
-            Collections.sort(childList);
-            String[] myStr = lockName.split("/");
-            return childList.get(0).equals(myStr[2]);
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-
     /**
      * 获取锁，没有则等待，获取失败或者超时抛出异常，成功接着执行代码
      *
@@ -137,10 +116,9 @@ public class ZookeeperLock implements com.xiaoyu.zklock.core.LogFactory {
      * @param outTime   超时时间，单位毫秒
      * @throws Exception 异常
      */
-    private boolean getLockOrWait(String path, String lockName, ZooKeeper zooKeeper, long outTime) throws
-            Exception {
-        AtomicBoolean resBoolean = new AtomicBoolean(false);
-        long startTime = System.currentTimeMillis();
+    private boolean getLockOrWait(String path, String lockName, ZooKeeper zooKeeper, long outTime) throws KeeperException,
+            InterruptedException, TimeoutException {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
 
         List<String> childList = zooKeeper.getChildren(path, false);
         String[] myStr = lockName.split("/");
@@ -148,52 +126,27 @@ public class ZookeeperLock implements com.xiaoyu.zklock.core.LogFactory {
 
         int i = childList.indexOf(myStr[2]);
         if (i == 0) {
-            if (System.currentTimeMillis() - startTime >= outTime) {
-                //超时
-                throw new Exception("获取锁超时 !" + lockName);
-            }
             return true;
         }
-
         //得到前面的一个节点
         String headId = childList.get(i - 1);
-
         String headPath = path + "/" + headId;
-
         info("锁名称：" + path.substring(1) + "，" + myStr[2] + " 向添加监听：" + headPath);
 
         Stat stat = zooKeeper.exists(headPath, event -> {
-            try {
-                //获取到锁。
-                do {
-                    long time = System.currentTimeMillis() - startTime;
-                    if (time >= outTime) {
-                        //超时
-                        throw new Exception("获取锁超时 !" + lockName);
-                    }
-                } while (!checkState(path, lockName, zooKeeper));
-
-                resBoolean.set(true);
-            } catch (Exception e) {
-                resBoolean.set(false);
+            if (event.getType().equals(Watcher.Event.EventType.NodeDeleted)) {
+                info("监听到 " + event.getPath() + " 节点删除");
+                countDownLatch.countDown();
             }
         });
         if (stat == null) {
             //节点不存在，锁已经释放
             return true;
         }
-        //线程堵塞，如果超时时间内未能进入节点监控，返回失败。
-        while (!resBoolean.get()) {
-            //判断是否超时
-            long time = System.currentTimeMillis() - startTime;
-            if (time >= outTime) {
-                //超时
-                throw new Exception("获取锁超时 !" + lockName);
-            }
-            Thread.sleep(1);
+        if (!countDownLatch.await(outTime, TimeUnit.MILLISECONDS)) {
+            throw new TimeoutException("获取锁超时 !" + lockName);
         }
-
-        return resBoolean.get();
+        return true;
     }
 
     @Override

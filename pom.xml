@@ -6,7 +6,7 @@
 
     <groupId>com.xiaoyu</groupId>
     <artifactId>zklock-spring-boot-starter</artifactId>
-    <version>1.0.1</version>
+    <version>0.1.XIAOYU</version>
 
     <properties>
         <spring-boot.version>2.3.0.RELEASE</spring-boot.version>

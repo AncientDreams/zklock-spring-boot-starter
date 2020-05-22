@@ -17,7 +17,7 @@
          <dependency>
              <groupId>com.github.AncientDreams</groupId>
              <artifactId>zklock-spring-boot-starter</artifactId>
-             <version>0.3.XIAOYU</version>
+             <version>0.4.XIAOYU</version>
          </dependency>
      </dependencies>
      

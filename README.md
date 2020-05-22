@@ -17,7 +17,7 @@
          <dependency>
              <groupId>com.github.AncientDreams</groupId>
              <artifactId>zklock-spring-boot-starter</artifactId>
-             <version>1.0.2</version>
+             <version>1.0.1</version>
          </dependency>
      </dependencies>
      

@@ -33,6 +33,8 @@ public class AopConfig implements LogFactory {
     @Autowired
     private LockConfig lockConfig;
 
+    private Log log = org.apache.commons.logging.LogFactory.getLog(AopConfig.class);
+
     /**
      * 环绕通知 @annotation(locks) 在指定注解标注的方法上加入切点，
      * 加上注解的类必须是通过Spring 来管理注入的
@@ -70,6 +72,6 @@ public class AopConfig implements LogFactory {
 
     @Override
     public Log setLog() {
-        return lockConfig.isEnableLog() ? org.apache.commons.logging.LogFactory.getLog(AopConfig.class) : null;
+        return lockConfig.isEnableLog() ? log : null;
     }
 }

@@ -27,6 +27,8 @@ public class ZookeeperLock implements com.xiaoyu.zklock.core.LogFactory {
     @Autowired
     private LockConfig lockConfig;
 
+    private Log log = org.apache.commons.logging.LogFactory.getLog(ZookeeperLock.class);
+
     /**
      * 获取锁
      *
@@ -151,6 +153,6 @@ public class ZookeeperLock implements com.xiaoyu.zklock.core.LogFactory {
 
     @Override
     public Log setLog() {
-        return lockConfig.isEnableLog() ? org.apache.commons.logging.LogFactory.getLog(ZookeeperLock.class) : null;
+        return lockConfig.isEnableLog() ? log : null;
     }
 }

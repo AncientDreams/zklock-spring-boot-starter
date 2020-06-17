@@ -34,7 +34,7 @@ xiaoyu.lock.time-out : zookeeper链接超时时间，默认 60000 毫秒。
 ```properties
 @Lock注解包含两个参数
 
-outTime：锁的超时时间，默认6000毫秒，超时抛出异常。
+outTime：获取锁的超时时间，超时抛出异常，默认6000毫秒。
 lockName：锁的名称！
 ```
 
